@@ -335,68 +335,134 @@
 
     <script type="text/javascript">
       $(document).ready(function(){
-        if(localStorage.getItem("rol") != 2 || localStorage.getItem("user") == null) {
+        if(localStorage.getItem("rol") == null || localStorage.getItem("rol") != 2 || localStorage.getItem("user") == null) {
           window.location.href = "./login.html"; 
+        }
+        var base_url = "http://localhost:8080";
+
+        var user = JSON.parse(localStorage.getItem("user"));
+        
+        var max = user.docente.cant;
+
+        var counter = 0;
+        var horario = {};
+
+        for(var i = 1 ; i <= 7 ; ++i) {
+          horario[i] = {};
+          for(var j = 1 ; j <= 14 ; ++j) {
+            horario[i][j] = false;
+          }
+        }
+
+        function loadDocente() {
+            $.ajax({
+              url: base_url+'/docente/'+JSON.parse(localStorage.getItem("user")).docente.id,
+              type: 'GET',
+              success: function (data) {
+                  user["docente"] = data.docente;
+                  localStorage.setItem("user", JSON.stringify(user));
+                  $("#codigo").text(user.docente.codigo);
+                  $("#paterno").text(user.docente.lastname);
+                  $("#nombres").text(user.docente.firstname);
+                  $("#horas").text(user.docente.cant);
+                  $("#current").text(user.docente.cant);
+                  max = user.docente.cant;
+
+                  if(user.docente.horario == null) {
+                    $("#print").addClass("hidden");
+                  }
+                  else{
+                    $("#submit").addClass("hidden");
+                    var horarioDia = user.docente.horario["horarioDia"];
+                    for(index in horarioDia){
+                      var dia = horarioDia[index].dia;
+                      for(idx in horarioDia[index].horas){
+                        var hora = horarioDia[index].horas[idx].id;
+                        $("#h_"+hora+"_"+dia).removeClass("sucess");
+                        $("#h_"+hora+"_"+dia).addClass("sucess");
+                      }
+                    }
+                  }
+
+              },
+              statusCode: {
+                401: function() {
+                  $("#error_container").removeClass("hidden");
+                },
+                404: function() {
+                  alert("Docente no encontrado");
+                },
+                400: function() {
+                  alert("error en datos");
+                },
+                500: function() {
+                  alert("error en servidor");
+                }
+              }
+          });
         }
 
         $("#print").click(function(e){
           window.print();
         });
 
-        var user = JSON.parse(localStorage.getItem("user"));
-
-        $("#codigo").text(user.docente.codigo);
-        $("#paterno").text(user.docente.lastname);
-        $("#nombres").text(user.docente.firstname);
-        $("#horas").text(user.docente.cant);
-        $("#current").text(user.docente.cant);
-
-        var max = user.docente.cant;
-
-        
-        if(user.docente.horario == null) {
-          $("#print").addClass("hidden");
-        }
-
-        var base_url = "http://localhost:8080";
+        loadDocente();
 
         $("#submit").click(function(e){
-          
-          for(item in horario) {
-            console.log(item);
-            console.log(horario[item]);
+          if(counter != user.docente.cant) {
+            alert("Tiene que llenar la cantidad de horas exactas");
+            return;
+          }
+          var _horario = []
+          for(dia in horario) {
+            var horas = [];
+            var used = false;
+            for(hora in horario) {
+              
+              if(horario[dia][hora]) {
+                used = true;
+                horas.push(hora);
+              }
+              
+            }
+            if(!used)continue;
+            _horario.push({
+              "dia" : dia,
+              "hora": horas
+            });
           }
 
-          /*$.ajax({
-              url: base_url+'/login',
+          var data = {
+            "docente": user.docente.id,
+            "horario": _horario
+          };
+
+          $.ajax({
+              url: base_url+'/horario',
               type: 'POST',
               contentType: "application/json",
               success: function (data) {
-                  console.log(data);
-                  localStorage.setItem("user", data.user);
-                  var rol = data.user.docente.rol;
-                  localStorage.setItem("rol", rol);
-
-                  if(rol == 1) {
-                    window.location.href = "./editar.html";
-                  }
-                  else {
-                    window.location.href = "./disponibilidad.html";
-                  }
+                  user["docente"] = data.docente;
+                  localStorage.setItem("user", JSON.stringify(user));
+                  window.location.reload();
               },
               data: JSON.stringify(data),
               statusCode: {
                 401: function() {
                   $("#error_container").removeClass("hidden");
+                },
+                404: function() {
+                  alert("Docente no encontrado");
+                },
+                400: function() {
+                  alert("error en datos");
+                },
+                500: function() {
+                  alert("error en servidor");
                 }
               }
-          });*/
+          });
         });
-
-      var counter = 0;
-      var horario = [];
-
-      for(var i = 1 ; i <= )
       
       $("[data-toggle=tooltip]").tooltip();
 
@@ -405,22 +471,21 @@
         var exp     = id.split("_");
         var hora    = exp[1];
         var dia    = exp[2];
-        console.log(hora);
-        console.log(dia);
-        if(!$(this).hasClass("success")){
+        if(user.docente.horario != null)return;
+        
+        if(!$(this).hasClass("sucess")){
           if(counter == max)return;
             counter++;
             $( this ).toggleClass( "sucess" );
-            if(horario[hora] === undefined){
-              horario[hora] = {};
-            }
-            horario[hora][dia] = true;
+            horario[dia][hora] = true;
         }
         else {
           if(counter == 0)return;
           $( this ).toggleClass( "sucess" ); 
-          horario[hora][dia] = false;
+          counter--;
+          horario[dia][hora] = false;
         }
+        
         $("#current").text(max-counter);
       });
       
