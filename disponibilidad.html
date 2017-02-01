@@ -223,66 +223,53 @@
 
 
   <div class="row">
-        
-        <div class="col-md-12">
-        <div class="table-responsive">
-                 <h3 class="text-center"><b>CURSOS DE SU PREFERENCIA</b></h3>
-              <table id="mytable" class="table table-bordred table order-list">
-                   
-                   <thead>
-                   <th>#</th>
-                   <th>Curso</th>
-                    <th>Escuela</th>
-                  
-                   </thead>
-    <tbody>
-    
- <tr id="addr">
-    <td style="vertical-align: middle;">
-      1
-    </td>
-    <td>
-      <!-- Split button -->
-    <div class="btn-group">
-      <button type="button" class="btn btn-default">Cursos</button>
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a href="#">Action</a></li>
-        <li><a href="#">Another action</a></li>
-        <li><a href="#">Something else here</a></li>
-      </ul>
-    </div>
-    </td>
-    <td>
-      <div class="btn-group">
-      <button type="button" class="btn btn-default">Escuela</button>
-      <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-        <span class="caret"></span>
-        <span class="sr-only">Toggle Dropdown</span>
-      </button>
-      <ul class="dropdown-menu">
-        <li><a href="#">Action</a></li>
-        <li><a href="#">Another action</a></li>
-        <li><a href="#">Something else here</a></li>
-      </ul>
-    </div>
-    </td>
-    </tr>
-</tbody>  
-<tfoot>
-        <tr>
-            <td colspan="5" style="text-align: left;">
-                <input type="button" class="btn btn-lg btn-block " id="addrow" value="Agregar Curso" />
-            </td>
-        </tr>
-        <tr>
-        </tr>
+
+  <div class="col-md-12">
+  <div class="table-responsive">
+    <h3 class="text-center"><b>CURSOS DE SU PREFERENCIA</b></h3>
+    <table id="mytable" class="table table-bordred table order-list">
+
+    <thead>
+      <th>#</th>
+      <th>Escuela</th>
+      <th>Curso</th>
+
+    </thead>
+    <tbody id="optionTable" class="">
+      <tr id="addr">
+        <td style="vertical-align: middle;">
+        1
+        </td>
+        <td>
+          <div class="btn-group">
+            <select id="escuela_1">
+              <option value="0">Elija escuela</option>
+            </select>
+          </div>
+        </td>
+        <td>
+          <div class="btn-group">
+            <select id="curso_1">
+              <option value="0">Elija curso</option>
+            </select>
+          </div>
+        </td>
+      </tr>
+    </tbody> 
+    <tbody id="resumeTable" class="hidden">
+
+    </tbody>
+    <tfoot id="footerResume">
+      <tr>
+        <td colspan="5" style="text-align: left;">
+          <input type="button" class="btn btn-lg btn-block " id="addrow" value="Agregar Curso" />
+        </td>
+      </tr>
+      <tr>
+      </tr>
     </tfoot> 
-</table>
-</div>
+    </table>
+  </div>
 
 <div class="clearfix"></div>
 
@@ -346,12 +333,60 @@
 
         var counter = 0;
         var horario = {};
+        var courses = 1;
 
         for(var i = 1 ; i <= 7 ; ++i) {
           horario[i] = {};
           for(var j = 1 ; j <= 14 ; ++j) {
             horario[i][j] = false;
           }
+        }
+
+        var cursoEscuela = null;
+        var complete = {};
+        for(var i = 0; i <= 10 ; ++i) {
+          complete[i] = [];
+        }
+        var escuelas = {};
+        var cursos = {};
+
+        function bindEvent(id) {
+          for(item in complete) {
+            if(complete[item].length > 0){
+              
+              $("#escuela_"+id).append($('<option>',{
+                value: item,
+                text: escuelas[item].nombre
+              }));
+            }
+          }
+          $("#escuela_"+id).change(function(e){
+            var selected = this.value;
+            $("#curso_"+id).empty();
+            for(item in complete[selected]) {
+              var curso = complete[selected][item];
+              $("#curso_"+id).append($('<option>',{
+                value: curso.id,
+                text: curso.nombre
+              }));
+            }
+          });
+        }
+
+        function loadCursoEscuela() {
+          $.ajax({
+            url: base_url+'/curso_escuela/',
+              type: 'GET',
+              success: function (data) {
+                  cursoEscuela = data.cursoEscuelas;
+                  for(item in data.cursoEscuelas) {
+                    complete[cursoEscuela[item].escuela.id].push(cursoEscuela[item].curso);
+                    escuelas[cursoEscuela[item].escuela.id] = cursoEscuela[item].escuela;
+                    cursos[cursoEscuela[item].curso.id] = cursoEscuela[item].curso;
+                  }
+                  bindEvent(1);
+              }
+            });
         }
 
         function loadDocente() {
@@ -368,8 +403,15 @@
                   $("#current").text(user.docente.cant);
                   max = user.docente.cant;
 
+
                   if(user.docente.horario == null) {
                     $("#print").addClass("hidden");
+                    $("mytable").addClass("hidden");
+                    $("resume").removeClass("hidden");
+
+                    $("#optionTable").removeClass("hidden");
+                    $("#footerResume").removeClass("hidden");
+                    $("#resumeTable").addClass("hidden");
                   }
                   else{
                     $("#submit").addClass("hidden");
@@ -381,6 +423,16 @@
                         $("#h_"+hora+"_"+dia).removeClass("sucess");
                         $("#h_"+hora+"_"+dia).addClass("sucess");
                       }
+                    }
+
+                    $("#optionTable").addClass("hidden");
+                    $("#footerResume").addClass("hidden");
+                    $("#resumeTable").removeClass("hidden");
+
+                    for(var i = 0 ; i < user.docente.cursoEscuela.length ; ++i){
+                      var item = user.docente.cursoEscuela[i];
+                      console.log(item);
+                      $("#resumeTable").append('<td style="vertical-align: middle;">'+(i+1)+'</td><td><div class="btn-group">'+item.escuela.nombre+'</div></td><td><div class="btn-group">'+item.curso.nombre+'</div></td>')
                     }
                   }
 
@@ -406,19 +458,67 @@
           window.print();
         });
 
+        loadCursoEscuela();
         loadDocente();
 
         $("#submit").click(function(e){
+          var binded = [];
+          for(var i = 1 ; i <= courses ; ++i) {
+            if($("#escuela_"+i).val() == 0 || $("#curso_"+i).val() == 0) {
+              alert("Tiene que colocar curso y escuela valida");
+              return;
+            }
+            else {
+              for(item in cursoEscuela) {
+                if(cursoEscuela[item].escuela.id == $("#escuela_"+i).val() && cursoEscuela[item].curso.id == $("#curso_"+i).val()){
+                  binded.push(cursoEscuela[item].id);
+                }
+              }
+            }
+          }
+          console.log(JSON.stringify(binded));
+          var dataCursos = {
+            "docente": user.docente.id,
+            "cursos": binded
+          };
+
+          $.ajax({
+              url: base_url+'/curso',
+              type: 'POST',
+              contentType: "application/json",
+              success: function (data) {
+                  console.log(data);
+              },
+              data: JSON.stringify(dataCursos),
+              statusCode: {
+                401: function() {
+                  $("#error_container").removeClass("hidden");
+                },
+                404: function() {
+                  alert("Docente no encontrado");
+                },
+                400: function() {
+                  alert("error en datos de cursos");
+                },
+                500: function() {
+                  alert("error en servidor por cursos");
+                }
+              }
+          });
+
+
+
           if(counter != user.docente.cant) {
             alert("Tiene que llenar la cantidad de horas exactas");
             return;
           }
+
+
           var _horario = []
           for(dia in horario) {
             var horas = [];
             var used = false;
-            for(hora in horario) {
-              
+            for(hora in horario[dia]) {
               if(horario[dia][hora]) {
                 used = true;
                 horas.push(hora);
@@ -455,10 +555,10 @@
                   alert("Docente no encontrado");
                 },
                 400: function() {
-                  alert("error en datos");
+                  alert("error en datos de horario");
                 },
                 500: function() {
-                  alert("error en servidor");
+                  alert("error en servidor de horario");
                 }
               }
           });
@@ -485,30 +585,25 @@
           counter--;
           horario[dia][hora] = false;
         }
-        
+
         $("#current").text(max-counter);
       });
-      
 
       $("#addrow").on("click", function () {
           if(counter == user.docente.cant)return;
           var newRow = $("<tr>");
           var cols = "";
-          cols += '<td style="vertical-align: middle;">' + counter + '</td>';
-          cols += '<td><div class="btn-group"><button type="button" class="btn btn-default">Cursos</button><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu"><li><a href="#">Action</a></li><li><a href="#">Something else here</a></li></ul></div></td>';
-          cols += '<td><div class="btn-group"><button type="button" class="btn btn-default">Escuela</button><button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button><ul class="dropdown-menu"><li><a href="#">Action</a></li><li><a href="#">Something else here</a></li></ul></div></td>';
+          courses++;
+          cols += '<td style="vertical-align: middle;">' + courses + '</td>';
+          cols += '<td><div class="btn-group"><select id="escuela_'+courses+'"><option value="0">Elija escuela</option></select></div></td><td><div class="btn-group"><select id="curso_'+courses+'"><option value="0">Elija curso</option></select></div></td>';;
           newRow.append(cols);
           $("table.order-list").append(newRow);
-          counter++;
+          bindEvent(courses);
       });
 
 
 
-      $("table.order-list").on("click", ".ibtnDel", function (event) {
-          if(counter == 0)return;
-          $(this).closest("tr").remove();       
-          counter -= 1
-      });
+      
       });
     </script>
   </body>
