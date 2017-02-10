@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
-  	<!-- Latest compiled and minified CSS -->
+    <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-  	<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="http://getbootstrap.com/dist/js/bootstrap.min.js"></script>
-  	<link rel="stylesheet" type="text/css" href="styles.css">
-  	<title></title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title></title>
 </head>
 <body>
 
@@ -40,9 +40,50 @@
               <div class="form-group">
               <span>Ingrese código de docente: </span> <input type="text" class="form-control" id="ejemplo_email_3">
               <br>
-              <button class="btn btn-default" id="submit" type="button">Limpiar Datos</button>
+              <button class="btn btn-default" type="button" data-toggle="modal" data-target="#myModal1">Limpiar Datos</button>
+              <button class="btn btn-default" type="button" data-toggle="modal" data-target="#myModal2">Enviar Clave</button>
             </div>  
             </div>                               
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Enviar Clave</h4>
+            </div>
+            <div class="modal-body">
+              <p id="reinicializarMsg">¿Está seguro(a) de reinicializar la disponibilidad del docente?</p>
+              <p id="sucessMsg2" class="hidden">Mail enviado!</p>
+              <p id="errorMsg2" class="hidden">No se pudo enviar mail al docente</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
+              <button type="button" id="submit2" class="btn btn-success">Aceptar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Reinicializar Disponibilidad</h4>
+            </div>
+            <div class="modal-body">
+              <p id="reinicializarMsg">¿Está seguro(a) de reinicializar la disponibilidad del docente?</p>
+              <p id="sucessMsg" class="hidden">Operación exitosa!</p>
+              <p id="errorMsg" class="hidden">No se pudo reinicializar la disponibilidad del docente</p>
+            </div>
+            <div class="modal-footer modalfooter2">
+              <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-success" id="submit">Aceptar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -71,18 +112,86 @@
               type: 'POST',
               contentType: "application/json",
               success: function (data) {
-                alert("Horario reseteado");
+                if(!$("#errorMsg").hasClass("hidden")){
+                  $("#errorMsg").addClass("hidden");
+                }
+                if($("#sucessMsg").hasClass("hidden")){
+                  $("#sucessMsg").removeClass("hidden");
+                }
               },
               data: JSON.stringify(data),
               statusCode: {
                 404: function() {
-                  alert("Docente no encontrado");
+                  if(!$("#sucessMsg").hasClass("hidden")){
+                    $("#sucessMsg").addClass("hidden");
+                  }
+                  if($("#errorMsg").hasClass("hidden")){
+                    $("#errorMsg").removeClass("hidden");
+                  }
                 },
                 400: function() {
-                  alert("Datos invalidos");
+                  if(!$("#sucessMsg").hasClass("hidden")){
+                    $("#sucessMsg").addClass("hidden");
+                  }
+                  if($("#errorMsg").hasClass("hidden")){
+                    $("#errorMsg").removeClass("hidden");
+                  }
                 },
                 500: function() {
-                  alert("Docente no encontrado");
+                  if(!$("#sucessMsg").hasClass("hidden")){
+                    $("#sucessMsg").addClass("hidden");
+                  }
+                  if($("#errorMsg").hasClass("hidden")){
+                    $("#errorMsg").removeClass("hidden");
+                  }
+                }
+              }
+          });
+        });
+
+        $("#submit2").click(function(e){
+
+          var data = {
+            "codigo"  : $("#ejemplo_email_3").val()
+          };
+
+          $.ajax({
+              url: base_url+'/mail',
+              type: 'POST',
+              contentType: "application/json",
+              success: function (data) {
+                if(!$("#errorMsg2").hasClass("hidden")){
+                  $("#errorMsg2").addClass("hidden");
+                }
+                if($("#sucessMsg2").hasClass("hidden")){
+                  $("#sucessMsg2").removeClass("hidden");
+                }
+              },
+              data: JSON.stringify(data),
+              statusCode: {
+                404: function() {
+                  if(!$("#sucessMsg2").hasClass("hidden")){
+                    $("#sucessMsg2").addClass("hidden");
+                  }
+                  if($("#errorMsg2").hasClass("hidden")){
+                    $("#errorMsg2").removeClass("hidden");
+                  }
+                },
+                400: function() {
+                  if(!$("#sucessMsg2").hasClass("hidden")){
+                    $("#sucessMsg2").addClass("hidden");
+                  }
+                  if($("#errorMsg2").hasClass("hidden")){
+                    $("#errorMsg2").removeClass("hidden");
+                  }
+                },
+                500: function() {
+                  if(!$("#sucessMsg2").hasClass("hidden")){
+                    $("#sucessMsg2").addClass("hidden");
+                  }
+                  if($("#errorMsg2").hasClass("hidden")){
+                    $("#errorMsg2").removeClass("hidden");
+                  }
                 }
               }
           });

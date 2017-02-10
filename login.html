@@ -34,7 +34,7 @@
         <button class="btn btn-lg btn-primary btn-block" type="button" id="submit">Ingresar</button>
       </div>
 
-      <div id="error_container" class="error hidden">
+      <div id="error_container" class="error hidden" style="color: red;">
           <div class="alert">Verifique sus credenciales</div>
       </div>
 
@@ -44,12 +44,18 @@
       $(document).ready(function(){
         localStorage.setItem("user", null);
         localStorage.setItem("rol", null);
-        var base_url = "http://54.244.144.252:8080/sidihoWs";
+        var base_url = "http://localhost:8080";
 
         $("#submit").click(function(e){
           var username = $("#username").val();
           var password = $("#password").val();
           $("#error_container").addClass("hidden");
+
+          if(username == null || username == "" || password == null || password == "") {
+            $("#error_container").text("Necesita ingresar su usuario y contraseña");
+            $("#error_container").removeClass("hidden");
+            return;
+          }
 
           var data = {
             "username"  : username,
@@ -76,6 +82,7 @@
               data: JSON.stringify(data),
               statusCode: {
                 401: function() {
+                  $("#error_container").text("Verifique sus credenciales");
                   $("#error_container").removeClass("hidden");
                 }
               }
