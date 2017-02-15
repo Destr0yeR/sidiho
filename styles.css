@@ -44,13 +44,11 @@ body {
 th, td{
   text-align: center
 }
-.glyphicon.glyphicon-ok{
-  color: green;
+.glyphicon.glyphicon-pencil{
+  color: #1c1cb3;
   font-size: 14px;
-  float: right;
 }
-.glyphicon.glyphicon-remove{
-  color: red;
+.glyphicon.glyphicon-floppy-disk{
+  color: orange;
   font-size: 14px;
-    float: right;
 }

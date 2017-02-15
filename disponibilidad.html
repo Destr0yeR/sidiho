@@ -41,18 +41,40 @@
                 <th>Código</th>
                 <th>Apellidos</th>
                 <th>Nombres</th>
+                <th>Correo</th>
+                <th>Telefono</th>
                 <th>Modalidad</th>
                 <th>Falta</th>
-                <th>Correo</th>
               </thead>
               <tbody>
                 <tr>
-                  <td id="codigo">25235235</td>
-                  <td id="paterno">ALARCON</td>
-                  <td id="nombres">LUIS ALBERTO</td>
-                  <td id="horas">20</td>
-                  <td id="current">20</td>
-                  <td id="email">test@test.com</td>
+                  <td id="codigo" style="vertical-align: middle;"><span class="glyphicon glyphicon-pencil" id="editBtn" aria-hidden="true"></span><span id="saveBtn" type="submit" class="glyphicon glyphicon-floppy-disk"  aria-hidden="true"></span>&nbsp 25235235</td>
+                  <td id="paterno" style="vertical-align: middle;">
+                    <div class="form-group">
+                      <input style="border: none;text-align: center;display: inline-block;box-shadow: none" type="text" value="ALARCON" class="form-control" id="lastnameDoc" name="lastnameDoc" required disabled>
+                      <span class="help-block"></span>
+                    </div>
+                  </td>
+                  <td id="nombres" style="vertical-align: middle;">
+                    <div class="form-group">
+                      <input style="border: none;text-align: center;display: inline-block;box-shadow: none" type="text" value="LUIS ALBERTO" class="form-control" id="nameDoc" name="nameDoc" required disabled>
+                      <span class="help-block"></span>
+                    </div>
+                  </td>
+                  <td id="paterno" style="vertical-align: middle;">
+                    <div class="form-group">
+                      <input style=";border: none;text-align: center;display: inline-block;box-shadow: none" type="email" value="lalarcon@gmail.com" class="form-control" id="email" name="emailDoc" data-error="Dirección de correo inválida" required disabled>
+                      <span class="help-block with-errors"></span>
+                    </div>
+                  </td>
+                  <td id="paterno" style="vertical-align: middle;">
+                    <div class="form-group">
+                      <input style=";border: none;text-align: center;display: inline-block;box-shadow: none" type="email" value="lalarcon@gmail.com" class="form-control" id="phone" name="emailDoc" data-error="Dirección de correo inválida" required disabled>
+                      <span class="help-block with-errors"></span>
+                    </div>
+                  </td>
+                  <td id="horas" style="vertical-align: middle;">TP</td>
+                  <td id="current" style="vertical-align: middle;">20</td>
                 </tr>
               </tbody>
             </table>
@@ -327,6 +349,7 @@
         if(localStorage.getItem("rol") == null || localStorage.getItem("rol") != 2 || localStorage.getItem("user") == null) {
           window.location.href = "./login.html"; 
         }
+
         var base_url = "http://54.244.144.252:8080/sidihoWs";
 
         var user = JSON.parse(localStorage.getItem("user"));
@@ -398,9 +421,61 @@
               success: function (data) {
                   user["docente"] = data.docente;
                   localStorage.setItem("user", JSON.stringify(user));
-                  $("#codigo").text(user.docente.codigo);
+                  $("#codigo").html('<span class="glyphicon glyphicon-pencil" id="editBtn" aria-hidden="true"></span><span id="saveBtn" type="submit" class="glyphicon glyphicon-floppy-disk"  aria-hidden="true"></span>&nbsp'+user.docente.codigo);
+
+                  $("#saveBtn").hide();
+                  $("#editBtn").click(function(){
+                    $("#email").removeAttr("disabled");
+                    $("#phone").removeAttr("disabled");
+                    $(this).hide();
+                    $("#saveBtn").show();
+                  });
+
+                  $("#saveBtn").click(function(e) {
+                    $("#editBtn").show();
+                    $("#email").attr("disabled",true);
+                    $("#phone").attr("disabled",true);
+                    $(this).hide();
+
+                    var docenteData = {
+                        "email" : $("#email").val(),
+                        "phone" : $("#phone").val()
+                      };
+
+                    $.ajax({
+                        url: base_url+'/docente/'+user.docente.id,
+                        type: 'POST',
+                        contentType: "application/json",
+                        success: function (data) {
+                            user.docente.email = $("#email").val();
+                            user.docente.phone = $("#phone").val();
+
+                            localStorage.setItem("user", JSON.stringify(user));
+                            alert("datos cambiados satisfactoriamente");
+                        },
+                        data: JSON.stringify(docenteData),
+                        statusCode: {
+                            401: function() {
+                                $("#error_container").removeClass("hidden");
+                            },
+                            404: function() {
+                                alert("Docente no encontrado");
+                            },
+                            400: function() {
+                                alert("error en datos de cursos");
+                            },
+                            500: function() {
+                                alert("error en servidor por cursos");
+                            }
+                        }
+                    });
+
+                  });
+                  
                   $("#paterno").text(user.docente.lastname);
                   $("#nombres").text(user.docente.firstname);
+                  $("#email").val(user.docente.email);
+                  $("#phone").val(user.docente.phone);
                   $("#horas").text(user.docente.cant == 12 ? "TP":"TC");
                   $("#current").text(user.docente.cant);
                   $("#email").text(user.docente.email);
