@@ -40,8 +40,12 @@
               <div class="form-group">
               <span>Ingrese código de docente: </span> <input type="text" class="form-control" id="ejemplo_email_3">
               <br>
-              <button class="btn btn-default" type="button" data-toggle="modal" data-target="#myModal1">Limpiar Datos</button>
-              <button class="btn btn-default" type="button" data-toggle="modal" data-target="#myModal2">Enviar Clave</button>
+              <button class="btn btn-default" type="button" id="modal1">Limpiar Datos</button>
+              <button class="btn btn-default" type="button" id="modal2">Enviar Clave</button>
+
+              <button class="btn btn-default hidden" type="button" data-toggle="modal" id="modal1Launch" data-target="#myModal1">Limpiar Datos</button>
+              <button class="btn btn-default hidden" type="button" data-toggle="modal" id="modal2Launch" data-target="#myModal2">Enviar Clave</button>
+              <button class="btn btn-default hidden" id="missing" type="button" data-toggle="modal" data-target="#modalMissing">missing</button>
             </div>  
             </div>                               
           </div>
@@ -78,11 +82,29 @@
             <div class="modal-body">
               <p id="reinicializarMsg">¿Está seguro(a) de reinicializar la disponibilidad del docente?</p>
               <p id="sucessMsg" class="hidden">Operación exitosa!</p>
-              <p id="errorMsg" class="hidden">No se pudo reinicializar la disponibilidad del docente</p>
+              <p id="errorMsg" class="hidden">El codigo no esta registrado.</p>
             </div>
             <div class="modal-footer modalfooter2">
               <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
               <button type="button" class="btn btn-success" id="submit">Aceptar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="modal fade" id="modalMissing" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Error</h4>
+            </div>
+            <div class="modal-body">
+              <p id="reinicializarMsg">Debe colocar un codigo</p>
+            </div>
+            <div class="modal-footer modalfooter2">
+              <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
             </div>
           </div>
         </div>
@@ -101,7 +123,34 @@
 
         var base_url = "http://54.244.144.252:8080/sidihoWs";
 
+        $("#modal1").click(function(e){
+          var codigo = $("#ejemplo_email_3").val();
+          console.log('"'+codigo.trim()+'"');
+          if(codigo.trim() == "") {
+            $("#missing").click();
+            return;
+          }
+          $("#modal1Launch").click();
+        });
+
+        $("#modal2").click(function(e){
+          var codigo = $("#ejemplo_email_3").val();
+          console.log('"'+codigo.trim()+'"');
+          if(codigo.trim() == "") {
+            $("#missing").click();
+            return;
+          }
+          $("#modal2Launch").click();
+        });
+
         $("#submit").click(function(e){
+
+          var codigo = $("#ejemplo_email_3").val();
+          console.log('"'+codigo.trim()+'"');
+          if(codigo.trim() == "") {
+            $("#missing").click();
+            return;
+          }
 
           var data = {
             "codigo"  : $("#ejemplo_email_3").val()
@@ -150,6 +199,13 @@
         });
 
         $("#submit2").click(function(e){
+
+          var codigo = $("#ejemplo_email_3").val();
+          console.log('"'+codigo.trim()+'"');
+          if(codigo.trim() == "") {
+            $("#missing").click();
+            return;
+          }
 
           var data = {
             "codigo"  : $("#ejemplo_email_3").val()

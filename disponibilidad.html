@@ -227,7 +227,7 @@
   <div class="row">
 
   <div class="col-md-12">
-  <div class="table-responsive">
+  <div class="table-responsive" id="coursesDiv">
     <h3 class="text-center"><b>CURSOS DE SU PREFERENCIA</b></h3>
     <table id="mytable" class="table table-bordred table order-list">
 
@@ -415,6 +415,7 @@
                     $("#optionTable").removeClass("hidden");
                     $("#footerResume").removeClass("hidden");
                     $("#resumeTable").addClass("hidden");
+                    $("#coursesDiv").addClass("hidden");
                   }
                   else{
                     $("#submit").addClass("hidden");
@@ -581,11 +582,17 @@
             counter++;
             $( this ).toggleClass( "sucess" );
             horario[dia][hora] = true;
+            if(counter == max) {
+              $("#coursesDiv").removeClass("hidden");
+            }
         }
         else {
           if(counter == 0)return;
           $( this ).toggleClass( "sucess" ); 
           counter--;
+          if(counter < max) {
+            $("#coursesDiv").addClass("hidden");
+          }
           horario[dia][hora] = false;
         }
 
