@@ -521,6 +521,9 @@
                   $("#phone").val(user.docente.phone);
                   $("#horas").text(user.docente.cant == 12 ? "TP":"TC");
                   $("#current").text(user.docente.cant);
+                  if(user.docente.horario != null) {
+                    $("#current").text(0);
+                  }
                   $("#email").text(user.docente.email);
                   max = user.docente.cant;
 
