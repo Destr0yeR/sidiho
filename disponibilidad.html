@@ -332,7 +332,7 @@
 
       <div class="row">
         <div class="col-md-12 text-center">
-          <button class="btn btn-success" type="button" data-toggle="modal" data-target="#myModal1">Guardar</button>
+          <button class="btn btn-success" id="submitModal" type="button" data-toggle="modal" data-target="#myModal1">Guardar</button>
         </div>
 
       </div>
@@ -536,6 +536,7 @@
                     $("#coursesDiv").addClass("hidden");
                   }
                   else{
+                    $("#submitModal").addClass("hidden");
                     $("#submit").addClass("hidden");
                     var horarioDia = user.docente.horario["horarioDia"];
                     for(index in horarioDia){
