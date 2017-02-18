@@ -690,7 +690,7 @@
       
       $("[data-toggle=tooltip]").tooltip();
 
-      $('.table#disponibilidad td').click(function() {
+      $('.table#disponibilidad td div').click(function() {
         var id      = $(this).attr("id");
         var exp     = id.split("_");
         var hora    = exp[1];
