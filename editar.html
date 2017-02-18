@@ -27,7 +27,7 @@
           </div>
           <div class="col-xs-6 col-sm-6 col-md-6 text-right">
             <div>
-              <p>Admin &nbsp; <span><a href="login.html">Cerrar Sesión</a></span></p>
+              <button class="btn btn-default" id="logout" type="button">Cerrar Sesion</button>
             </div>
           </div>
         </div>
@@ -40,7 +40,7 @@
               <div class="form-group">
               <span>Ingrese código de docente: </span> <input type="text" class="form-control" id="ejemplo_email_3">
               <br>
-              <button class="btn btn-default" type="button" id="modal1">Limpiar Datos</button>
+              <button class="btn btn-default" type="button" id="modal1">Reiniciar Disponibilidad</button>
               <button class="btn btn-default" type="button" id="modal2">Enviar Clave</button>
 
               <button class="btn btn-default hidden" type="button" data-toggle="modal" id="modal1Launch" data-target="#myModal1">Limpiar Datos</button>
@@ -60,13 +60,13 @@
               <h4 class="modal-title" id="myModalLabel">Enviar Clave</h4>
             </div>
             <div class="modal-body">
-              <p id="reinicializarMsg">¿Está seguro(a) de reinicializar la disponibilidad del docente?</p>
+              <p id="reinicializarMsg">¿ESTÁ SEGURO(A) DE ENVIAR LA CLAVE AL DOCENTE?</p>
               <p id="sucessMsg2" class="hidden">Mail enviado!</p>
               <p id="errorMsg2" class="hidden">No se pudo enviar mail al docente</p>
             </div>
             <div class="modal-footer">
-              <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
-              <button type="button" id="submit2" class="btn btn-success">Aceptar</button>
+              <button type="button" class="btn btn-warning closeModal2" data-dismiss="modal">Cancelar</button>
+              <button type="button" id="submit2" class="btn btn-success closeModal2">Aceptar</button>
             </div>
           </div>
         </div>
@@ -80,13 +80,13 @@
               <h4 class="modal-title" id="myModalLabel">Reinicializar Disponibilidad</h4>
             </div>
             <div class="modal-body">
-              <p id="reinicializarMsg">¿Está seguro(a) de reinicializar la disponibilidad del docente?</p>
+              <p id="reinicializarMsg">¿ESTÁ SEGURO(A) DE REINICIALIZAR LA DISPONIBILIDAD DEL DOCENTE?</p>
               <p id="sucessMsg" class="hidden">Operación exitosa!</p>
               <p id="errorMsg" class="hidden">El codigo no esta registrado.</p>
             </div>
             <div class="modal-footer modalfooter2">
-              <button type="button" class="btn btn-warning" data-dismiss="modal">Cancelar</button>
-              <button type="button" class="btn btn-success" id="submit">Aceptar</button>
+              <button type="button" class="btn btn-warning closeModal1" data-dismiss="modal">Cancelar</button>
+              <button type="button" class="btn btn-success closeModal1" id="submit">Aceptar</button>
             </div>
           </div>
         </div>
@@ -130,6 +130,11 @@
             $("#missing").click();
             return;
           }
+
+          $(".closeModal1").removeClass('hidden');
+          $("#sucessMsg").addClass('hidden');
+          $("#errorMsg").addClass('hidden');
+
           $("#modal1Launch").click();
         });
 
@@ -140,10 +145,21 @@
             $("#missing").click();
             return;
           }
+
+          $(".closeModal2").removeClass('hidden');
+          $("#sucessMsg2").addClass('hidden');
+          $("#errorMsg2").addClass('hidden');
+
           $("#modal2Launch").click();
         });
 
+        $("#logout").click(function(e){
+          window.location.href = "login.html"; 
+        });
+
         $("#submit").click(function(e){
+
+          $(".closeModal1").addClass("hidden");
 
           var codigo = $("#ejemplo_email_3").val();
           console.log('"'+codigo.trim()+'"');
@@ -199,6 +215,8 @@
         });
 
         $("#submit2").click(function(e){
+
+          $(".closeModal2").addClass('hidden');
 
           var codigo = $("#ejemplo_email_3").val();
           console.log('"'+codigo.trim()+'"');

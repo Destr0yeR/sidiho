@@ -52,3 +52,29 @@ th, td{
   color: orange;
   font-size: 14px;
 }
+
+#logout{
+  margin-top: 35px;
+}
+
+td.dis{
+  height: 1px;
+  padding: 0 !important;
+}
+
+td div {
+  height: 100%;
+  margin: 0;
+}
+
+@media print {
+    .sucess {
+        background: black;
+        background-color: black !important;
+        -webkit-print-color-adjust: exact; 
+    }
+
+    .sucess {
+        color: white !important;
+    }
+}
